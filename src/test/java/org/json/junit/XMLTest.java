@@ -44,6 +44,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONPointer;
 import org.json.JSONTokener;
 import org.json.XML;
 import org.json.XMLParserConfiguration;
@@ -64,7 +65,143 @@ public class XMLTest {
      */
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
-
+  
+    
+    // test if new method one could get the correct result with valid input
+	@Test
+	public void mileStoneTest1() throws IOException {
+		String xmlStr =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		        "<addresses xmlns:xsi=\"http://www.w3.org/2020/XMLSchema-instance\"" +
+		        "   xsi:noNamespaceSchemaLocation='test.xsd'>\n" +
+		        "   <address>\n" +
+		        "       <name>[CDATA[Joe &amp; T &gt; e &lt; s &quot; t &apos; er]]</name>\n" +
+		        "       <street>Yale street 1224</street>\n" +
+		        "       <ArrayOfNum>1.3, 2.4, 3, 4, 5</ArrayOfNum>\n" +
+		        "   </address>\n" +
+		        "</addresses>";
+        String expectedStr =
+	    "{\"street\":\"Yale street 1224\"," +
+	            "\"name\":\"[CDATA[Joe & T > e < s \\\" t \\\' er]]\"," +
+	            "\"ArrayOfNum\":\"1.3, 2.4, 3, 4, 5\"\n" +
+	            "}";	
+		JSONPointer jsonPointer = new JSONPointer("/addresses/address");
+        compareReaderToJSONObject2(xmlStr, expectedStr, jsonPointer);
+	}
+    
+	 // test if new method two could get the correct result with valid input
+	@Test
+	public void mileStoneTest2() throws IOException {
+		String xmlStr =             
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+	            "<addresses xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""+
+	            "   xsi:noNamespaceSchemaLocation='test.xsd'>\n"+
+	            "   <address>\n"+
+	            "       <ArrayOfNum>1, 2, 3, 4.1, 5.2</ArrayOfNum>\n"+
+	            "   </address>\n"+
+	            "</addresses>";
+        String replaceStr = "{\"ArrayOfNum\":\"1, 2, 3, 4.1, 5.2\"}";
+        String expectedStr = 
+        		 "{\"addresses\":{\"address\":{\"ArrayOfNum\":\"1, 2, 3, 4.1, 5.2\"\n"+
+        		            "},\"xsi:noNamespaceSchemaLocation\":"+
+        		            "\"test.xsd\",\"xmlns:xsi\":\"http://www.w3.org/2001/"+
+        		            "XMLSchema-instance\"}}";
+		JSONPointer jsonPointer = new JSONPointer("/root/item");
+        compareReaderToJSONObject3(xmlStr, replaceStr, expectedStr, jsonPointer);
+	}
+	
+    /**
+     * JSONObject from a null XML string.
+     * See if the new method one could handle null JSONObject input.
+     * @throws IOException 
+     */
+    @Test(expected=NullPointerException.class)
+    public void mileStoneTest3() throws IOException {
+        String xmlStr = null;
+        Reader reader = new StringReader(xmlStr);
+		JSONPointer jsonPointer = new JSONPointer("/root/item");
+        JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer);
+        assertTrue("jsonObject should be empty", jsonObject.isEmpty());
+    }
+    
+    /**
+     * JSONObject from a null XML string.
+     * See if the new method two could handle null JSONObject input.
+     * @throws IOException 
+     */
+    @Test(expected=NullPointerException.class)
+    public void mileStoneTest4() throws IOException {
+        String xmlStr = null;
+        Reader reader = new StringReader(xmlStr);
+        String replaceStr = "{\"ArrayOfNum\":\"1, 2, 3, 4.1, 5.2\"}";
+        JSONObject replaceJSONObj = new JSONObject(replaceStr);
+		JSONPointer jsonPointer = new JSONPointer("/root/item");
+        JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer, replaceJSONObj);
+        assertTrue("jsonObject should be empty", jsonObject.isEmpty());
+    }
+    
+    /**
+     * Empty JSONObject from an empty XML string.
+     * See if the new method one could handle empty JSONObject input.
+     * @throws IOException 
+     * @throws Exception 
+     */
+    @Test
+    public void mileStoneTest5() throws IOException  {
+        String xmlStr = "";
+        Reader reader = new StringReader(xmlStr);
+		JSONPointer jsonPointer = new JSONPointer("/root/item");
+        JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer);
+        assertTrue("jsonObject should be empty", jsonObject.isEmpty());
+    }
+    
+    /**
+     * Empty JSONObject from an empty XML string.
+     * See if the new method one could handle empty JSONObject input.
+     * @throws IOException 
+     */
+    @Test
+    public void mileStoneTest6() throws IOException {
+        String xmlStr = "";
+        Reader reader = new StringReader(xmlStr);
+        String replaceStr = "{\"ArrayOfNum\":\"1, 2, 3, 4.1, 5.2\"}";
+        JSONObject replaceJSONObj = new JSONObject(replaceStr);
+		JSONPointer jsonPointer = new JSONPointer("/root/item");
+        JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer, replaceJSONObj);
+        assertTrue("jsonObject should be empty", jsonObject.isEmpty());
+    }
+    
+    /**
+     * Empty JSONObject from a non-XML string.
+     * See if the new method one could handle non-XML input.
+     * @throws IOException 
+     */
+    @Test
+    public void mileStoneTest7() throws IOException {
+        String xmlStr = "{ \"this is\": \"not xml\"}";
+        Reader reader = new StringReader(xmlStr);
+		JSONPointer jsonPointer = new JSONPointer("/root/item");
+        JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer);
+        assertTrue("xml string should be empty", jsonObject.isEmpty());
+    }
+    
+    /**
+     * Empty JSONObject from a non-XML string.
+     * See if the new method two could handle non-XML input.
+     * @throws IOException 
+     */
+    @Test
+    public void mileStoneTest8() throws IOException {
+        String xmlStr = "{ \"this is\": \"not xml\"}";
+        Reader reader = new StringReader(xmlStr);
+		JSONPointer jsonPointer = new JSONPointer("/root/item");
+		String replaceStr = "{\"ArrayOfNum\":\"1, 2, 3, 4.1, 5.2\"}";
+        JSONObject replaceJSONObj = new JSONObject(replaceStr);
+        JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer, replaceJSONObj);
+        assertTrue("xml string should be empty", jsonObject.isEmpty());
+    }
+    
+   
     /**
      * JSONObject from a null XML string.
      * Expects a NullPointerException
@@ -775,6 +912,25 @@ public class XMLTest {
         JSONObject jsonObject = XML.toJSONObject(reader);
         Util.compareActualVsExpectedJsonObjects(jsonObject,expectedJsonObject);
     }
+    
+    
+    // a new method to help test milestone2 task1
+    private void compareReaderToJSONObject2(String xmlStr, String expectedStr, JSONPointer jsonPointer) throws IOException {
+        JSONObject expectedJsonObject = new JSONObject(expectedStr);
+        Reader reader = new StringReader(xmlStr);
+        JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer);
+        Util.compareActualVsExpectedJsonObjects(jsonObject,expectedJsonObject);
+    }
+    
+    // a new method to help test milestone2 task2
+    private void compareReaderToJSONObject3(String xmlStr, String replaceStr, String expectedStr, JSONPointer jsonPointer) throws IOException {
+        JSONObject expectedJsonObject = new JSONObject(expectedStr);
+        JSONObject replaceJsonObject = new JSONObject(replaceStr);
+        Reader reader = new StringReader(xmlStr);
+        JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer, replaceJsonObject);
+        Util.compareActualVsExpectedJsonObjects(jsonObject,expectedJsonObject);
+    }
+    
 
     /**
      * Convenience method, given an input string and expected result, convert to

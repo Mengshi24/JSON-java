@@ -1,5 +1,9 @@
 package org.json;
 
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 /*
 Copyright (c) 2015 JSON.org
 
@@ -75,7 +79,115 @@ public class XML {
     public static final String NULL_ATTR = "xsi:nil";
 
     public static final String TYPE_ATTR = "xsi:type";
+    
+    // ***********************************************************************************//
+    // which does, inside the library, the same thing that task 2 of milestone 1 did 
+    // in client code, before writing to disk. Being this done inside the library, 
+    // you should be able to do it more efficiently. 
+    // Specifically, you shouldn't need to read the entire XML file, 
+    // as you can stop parsing it as soon as you find the object in question.
+    public static JSONObject toJSONObject(Reader reader, JSONPointer path) throws IOException  {
+    	BufferedReader bufferReader = new BufferedReader(reader);
+		String line;
+		StringBuilder sb = new StringBuilder();
+		while((line = bufferReader.readLine()) != null) {
+			sb.append(line);
+			sb.append("\n");
+		}
+		String xmlContent = sb.toString();
+		JSONObject jsonOutput = new JSONObject();
+		Object subJsonOutput = null;
+		try {
+	    	jsonOutput = XML.toJSONObject(xmlContent);
+	    	subJsonOutput = jsonOutput.query(path);
+	    	String str = subJsonOutput.toString();
+	    	String str2 = null;
+	    	if(subJsonOutput instanceof JSONObject) {
+	    		JSONObject jsonTemp =  new JSONObject(str);
+	    		str2 = jsonTemp.toString(4); 
+		    	System.out.println(str2);
+	    	}
+	    			
+	    	if(subJsonOutput instanceof JSONArray) {
+	    		JSONArray jsonTemp =  new JSONArray(str);
+	    		str2 = jsonTemp.toString(4); 
+		    	System.out.println(str2);
+	    	}
+	    	
+	    	try {
+				FileWriter file;
+				file = new FileWriter("jsonOutputwithSubObject.json");
+				file.write(str2);
+		    	file.flush();
+		    	file.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    } catch (JSONException e) {
+	    	return new JSONObject();
+	    }
+		subJsonOutput = (JSONObject) subJsonOutput;
+		return (JSONObject) subJsonOutput;
+    }
 
+    // ******************************************************************************************************************//
+    // which does, inside the library, the same thing that task 5 of milestone 1 did in 
+    // client code, before writing to disk. Are there any possible performance gains from 
+    // doing this inside the library? If so, implement them in your version of the library.
+    public static JSONObject toJSONObject(Reader reader, JSONPointer path, JSONObject replacement) throws IOException {
+		BufferedReader bufferReader = new BufferedReader(reader);
+		String line;
+		StringBuilder sb = new StringBuilder();
+		while((line = bufferReader.readLine()) != null) {
+			sb.append(line);
+			sb.append("\n");
+		}
+		String xmlContent = sb.toString();
+		JSONObject jsonObject = XML.toJSONObject(xmlContent);
+    	String pointer = path.toString();
+    	
+    	String[] split = pointer.split("/");
+		String bottomLevelKey = split[split.length - 1];
+		
+		System.out.println(bottomLevelKey);      
+		pointer = pointer.substring(0, pointer.length() - bottomLevelKey.length() - 1);		
+		JSONObject jsonOutput = new JSONObject();
+		try {
+	    	jsonOutput = XML.toJSONObject(xmlContent);
+	    	if (jsonOutput.query(pointer) instanceof JSONObject) {
+	    		JSONObject subJsonOutput = (JSONObject) jsonOutput.query(pointer);
+	    		subJsonOutput.put(bottomLevelKey, replacement);
+	        } else if (jsonOutput.query(pointer) instanceof JSONArray) {
+	        	JSONArray subJsonOutput = (JSONArray) jsonOutput.query(pointer);
+	    		for (int i=0; i < subJsonOutput.length(); i++){
+	    			JSONObject obj = (JSONObject) subJsonOutput.get(i);
+	    			obj.put(bottomLevelKey, replacement);
+	    		}
+            } 
+	    	String result = jsonObject.toString(4);  // INDENT_FACTOR
+	    	System.out.println(result);
+			try {
+				FileWriter file;
+				file = new FileWriter("jsonOutputReplacesubObj.json");
+				file.write(result);
+		    	file.flush();
+		    	file.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    } catch (JSONException e) {
+	    	System.out.println(e.toString());
+	    }
+		return jsonOutput;  
+    }
+    
+    // The unit tests that use these two new functions, 
+    // both obtaining the correct results and for testing error conditions.
+    // can be seen in the XMLTest.
+    
+    
     /**
      * Creates an iterator for navigating Code Points in a string instead of
      * characters. Once Java7 support is dropped, this can be replaced with
