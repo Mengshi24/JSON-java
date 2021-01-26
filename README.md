@@ -20,7 +20,8 @@ cloned from GitHub
 
 **[Added two overloaded methods and eight Junit tests]**
 1. The two overloaded methods are in class XML.(JSON-java/src/main/java/org/json/XML.java)
-2. The added eight Junit tests are in XMLTest. (JSON-java/src/test/java/org/json/junit/XMLTest.java)
+2. The added eight Junit tests are in XMLTest. (JSON-java/src/test/java/org/json/junit/XMLTest.java) 
+As for testing, you can run XMLTest to see there is no error or failure.
 
 # Overview
 
