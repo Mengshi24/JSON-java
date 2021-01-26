@@ -82,7 +82,9 @@ public class XML {
     
     // ***********************************************************************************//
     // which does, inside the library, the same thing that task 2 of milestone 1 did 
-    // in client code, before writing to disk. Being this done inside the library, 
+    // in client code, 
+    // before writing to disk. (no need to write to disk!!!)
+    // Being this done inside the library, 
     // you should be able to do it more efficiently. 
     // Specifically, you shouldn't need to read the entire XML file, 
     // as you can stop parsing it as soon as you find the object in question.
@@ -97,11 +99,11 @@ public class XML {
 		String xmlContent = sb.toString();
 		JSONObject jsonOutput = new JSONObject();
 		Object subJsonOutput = null;
+    	String str2 = null;
 		try {
 	    	jsonOutput = XML.toJSONObject(xmlContent);
 	    	subJsonOutput = jsonOutput.query(path);
 	    	String str = subJsonOutput.toString();
-	    	String str2 = null;
 	    	if(subJsonOutput instanceof JSONObject) {
 	    		JSONObject jsonTemp =  new JSONObject(str);
 	    		str2 = jsonTemp.toString(4); 
@@ -113,22 +115,10 @@ public class XML {
 	    		str2 = jsonTemp.toString(4); 
 		    	System.out.println(str2);
 	    	}
-	    	
-	    	try {
-				FileWriter file;
-				file = new FileWriter("jsonOutputwithSubObject.json");
-				file.write(str2);
-		    	file.flush();
-		    	file.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 	    } catch (JSONException e) {
 	    	return new JSONObject();
 	    }
-		subJsonOutput = (JSONObject) subJsonOutput;
-		return (JSONObject) subJsonOutput;
+		return new JSONObject(str2);
     }
 
     // ******************************************************************************************************************//
@@ -144,7 +134,6 @@ public class XML {
 			sb.append("\n");
 		}
 		String xmlContent = sb.toString();
-		JSONObject jsonObject = XML.toJSONObject(xmlContent);
     	String pointer = path.toString();
     	
     	String[] split = pointer.split("/");
@@ -153,6 +142,7 @@ public class XML {
 		System.out.println(bottomLevelKey);      
 		pointer = pointer.substring(0, pointer.length() - bottomLevelKey.length() - 1);		
 		JSONObject jsonOutput = new JSONObject();
+		String result = null;
 		try {
 	    	jsonOutput = XML.toJSONObject(xmlContent);
 	    	if (jsonOutput.query(pointer) instanceof JSONObject) {
@@ -165,18 +155,8 @@ public class XML {
 	    			obj.put(bottomLevelKey, replacement);
 	    		}
             } 
-	    	String result = jsonObject.toString(4);  // INDENT_FACTOR
+	    	result = jsonOutput.toString(4);  // INDENT_FACTOR
 	    	System.out.println(result);
-			try {
-				FileWriter file;
-				file = new FileWriter("jsonOutputReplacesubObj.json");
-				file.write(result);
-		    	file.flush();
-		    	file.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 	    } catch (JSONException e) {
 	    	System.out.println(e.toString());
 	    }
