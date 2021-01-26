@@ -5,6 +5,23 @@ JSON in Java [package org.json]
 
 **[Click here if you just want the latest release jar file.](https://repo1.maven.org/maven2/org/json/json/20201115/json-20201115.jar)**
 
+# Milestone2
+**[Eclipse Import Instruction]**
+1. File -> Import…
+2. Git -> Project from Git
+3. Existing local repository
+4. Add
+5. Browse… Navigate to and select the directory “JSON-java” that you just
+cloned from GitHub
+6. Click the checkbox next to the directory. Click Next.
+7. Import as General Project
+8. Navigate to JSON-java on the Package Explorer window pane
+9. Right click on it, and choose Configure -> Convert to Maven Project
+
+**[Added two overloaded methods and eight Junit tests]**
+1. The two overloaded methods are in class XML.(JSON-java/src/main/java/org/json/XML.java)
+2. The added eight Junit tests are in XMLTest. (JSON-java/src/test/java/org/json/junit/XMLTest.java)
+
 # Overview
 
 [JSON](http://www.JSON.org/) is a light-weight language-independent data interchange format.
