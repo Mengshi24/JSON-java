@@ -47,6 +47,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.json.XML.KeyTrans;
+
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its external
  * form is a string wrapped in curly braces with colons between the names and
@@ -488,13 +490,40 @@ public class JSONObject {
             this.put(key,
                     value instanceof JSONArray ? new JSONArray().put(value)
                             : value);
+            System.out.println("key is " + key);
         } else if (object instanceof JSONArray) {
             ((JSONArray) object).put(value);
         } else {
             this.put(key, new JSONArray().put(object).put(value));
+            System.out.println("obj not null / key is " + key);
         }
         return this;
     }
+    
+    
+    /////////////////
+    public JSONObject accumulate3(String key, Object value, KeyTrans KeyTrans) throws JSONException {
+        if (!key.equals("content")) {
+        	key = KeyTrans.trans(key);
+
+        }
+    	testValidity(value);
+    	Object object = this.opt(key); // check The map where the JSONObject's properties are kept.
+        if (object == null) {
+            this.put(key,
+                    value instanceof JSONArray ? new JSONArray().put(value)
+                            : value);
+            System.out.println("key is " + key);
+        } else if (object instanceof JSONArray) {
+            ((JSONArray) object).put(value);
+        } else {
+            this.put(key, new JSONArray().put(object).put(value));
+            System.out.println("obj not null / key is " + key);
+        }
+        return this;
+    }
+    
+    /////////////////
 
     /**
      * Append values to the array under a key. If the key does not exist in the

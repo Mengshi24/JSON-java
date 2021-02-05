@@ -47,6 +47,7 @@ import org.json.JSONObject;
 import org.json.JSONPointer;
 import org.json.JSONTokener;
 import org.json.XML;
+import org.json.XML.KeyTrans;
 import org.json.XMLParserConfiguration;
 import org.json.XMLXsiTypeConverter;
 import org.junit.Rule;
@@ -66,6 +67,165 @@ public class XMLTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
   
+    /**********************************************Milestone3 Test*****************************************/
+    // test if new method could get the correct result with valid input, add prefix
+    @Test
+    public void mileStone3Test1() throws IOException {
+    	// Example of User
+	    class AddPrefixKeyTrans implements KeyTrans {
+			@Override
+			public String trans(String key) {
+				String result = "swe262_" + key;
+		        return result.substring(0, result.length());
+			}
+	    }
+	    KeyTrans KeyTrans = new AddPrefixKeyTrans();
+    	String xmlStr =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                        "<addresses xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""+
+                        "   xsi:noNamespaceSchemaLocation='test.xsd'>\n"+
+                        "   <address>\n"+
+                        "       <name>Joe Tester</name>\n"+
+                        "       <street>[CDATA[Baker street 5]</street>\n"+
+                        "       <NothingHere/>\n"+
+                        "       <TrueValue>true</TrueValue>\n"+
+                        "       <FalseValue>false</FalseValue>\n"+
+                        "       <NullValue>null</NullValue>\n"+
+                        "       <PositiveValue>42</PositiveValue>\n"+
+                        "       <NegativeValue>-23</NegativeValue>\n"+
+                        "       <DoubleValue>-23.45</DoubleValue>\n"+
+                        "       <Nan>-23x.45</Nan>\n"+
+                        "       <ArrayOfNum>1, 2, 3, 4.1, 5.2</ArrayOfNum>\n"+
+                        "   </address>\n"+
+                        "</addresses>";
+    	        String expectedStr =
+    	        		"{\"swe262_addresses\":{\"swe262_address\":{\"swe262_street\":\"[CDATA[Baker street 5]\","+
+    	        	            "\"swe262_name\":\"Joe Tester\",\"swe262_NothingHere\":\"\",swe262_TrueValue:true,\n"+
+    	        	            "\"swe262_FalseValue\":false,\"swe262_NullValue\":null,\"swe262_PositiveValue\":42,\n"+
+    	        	            "\"swe262_NegativeValue\":-23,\"swe262_DoubleValue\":-23.45,\"swe262_Nan\":-23x.45,\n"+
+    	        	            "\"swe262_ArrayOfNum\":\"1, 2, 3, 4.1, 5.2\"\n"+
+    	        	            "},\"swe262_xsi:noNamespaceSchemaLocation\":"+
+    	        	            "\"test.xsd\",\"swe262_xmlns:xsi\":\"http://www.w3.org/2001/"+
+    	        	            "XMLSchema-instance\"}}";
+    	        compareReadertoJSONObject(xmlStr, expectedStr, KeyTrans);
+    	        
+    }
+    
+ // test if new method could get the correct result with valid input, reverse the key
+    @Test
+    public void mileStone3Test2() throws IOException {
+    	// Example of User
+	    class AddPrefixKeyTrans implements KeyTrans {
+			@Override
+			public String trans(String key) {
+		        StringBuilder reverse = new StringBuilder();
+		        reverse.append(key);
+		        String reverseKey = reverse.reverse().toString();
+		        return reverseKey;
+			}
+	    }
+	    KeyTrans KeyTrans = new AddPrefixKeyTrans();
+    	String xmlStr =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                        "<addresses xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""+
+                        "   xsi:noNamespaceSchemaLocation='test.xsd'>\n"+
+                        "   <address>\n"+
+                        "       <name>Joe Tester</name>\n"+
+                        "       <street>[CDATA[Baker street 5]</street>\n"+
+                        "       <NothingHere/>\n"+
+                        "       <TrueValue>true</TrueValue>\n"+
+                        "       <FalseValue>false</FalseValue>\n"+
+                        "       <NullValue>null</NullValue>\n"+
+                        "       <PositiveValue>42</PositiveValue>\n"+
+                        "       <NegativeValue>-23</NegativeValue>\n"+
+                        "       <DoubleValue>-23.45</DoubleValue>\n"+
+                        "       <Nan>-23x.45</Nan>\n"+
+                        "       <ArrayOfNum>1, 2, 3, 4.1, 5.2</ArrayOfNum>\n"+
+                        "   </address>\n"+
+                        "</addresses>";
+    	        String expectedStr =
+    	        		"{\"sesserdda\":{\"sserdda\":{\"teerts\":\"[CDATA[Baker street 5]\","+
+    	        	            "\"eman\":\"Joe Tester\",\"ereHgnihtoN\":\"\",eulaVeurT:true,\n"+
+    	        	            "\"eulaVeslaF\":false,\"eulaVlluN\":null,\"eulaVevitisoP\":42,\n"+
+    	        	            "\"eulaVevitageN\":-23,\"eulaVelbuoD\":-23.45,\"naN\":-23x.45,\n"+
+    	        	            "\"muNfOyarrA\":\"1, 2, 3, 4.1, 5.2\"\n"+
+    	        	            "},\"noitacoLamehcSecapsemaNon:isx\":"+
+    	        	            "\"test.xsd\",\"isx:snlmx\":\"http://www.w3.org/2001/"+
+    	        	            "XMLSchema-instance\"}}";
+    	        compareReadertoJSONObject(xmlStr, expectedStr, KeyTrans);
+    	        
+    }
+    
+    
+    /**
+     * JSONObject from a null XML string.
+     * See if the new method one could handle null JSONObject input.
+     * @throws IOException 
+     */
+    @Test(expected=NullPointerException.class)
+    public void mileStone3Test3() throws IOException {
+    	// Example of User
+	    class AddPrefixKeyTrans implements KeyTrans {
+			@Override
+			public String trans(String key) {
+				String result = "swe262_" + key;
+		        return result.substring(0, result.length());
+			}
+	    }
+	    KeyTrans KeyTrans = new AddPrefixKeyTrans();
+        String xmlStr = null;
+        Reader reader = new StringReader(xmlStr);
+        JSONObject jsonObject = XML.toJSONObject(reader, KeyTrans);
+        assertTrue("jsonObject should be empty", jsonObject.isEmpty());
+    }
+    
+    /**
+     * Empty JSONObject from an empty XML string.
+     * See if the new method one could handle empty JSONObject input.
+     * @throws IOException 
+     * @throws Exception 
+     */
+    @Test
+    public void mileStone3Test4() throws IOException  {
+    	// Example of User
+	    class AddPrefixKeyTrans implements KeyTrans {
+			@Override
+			public String trans(String key) {
+				String result = "swe262_" + key;
+		        return result.substring(0, result.length());
+			}
+	    }
+	    KeyTrans KeyTrans = new AddPrefixKeyTrans();
+        String xmlStr = "";
+        Reader reader = new StringReader(xmlStr);
+        JSONObject jsonObject = XML.toJSONObject(reader, KeyTrans);
+        assertTrue("jsonObject should be empty", jsonObject.isEmpty());
+    }
+    
+    /**
+     * Empty JSONObject from a non-XML string.
+     * See if the new method one could handle non-XML input.
+     * @throws IOException 
+     */
+    @Test
+    public void mileStone3Test5() throws IOException {
+    	// Example of User
+	    class AddPrefixKeyTrans implements KeyTrans {
+			@Override
+			public String trans(String key) {
+				String result = "swe262_" + key;
+		        return result.substring(0, result.length());
+			}
+	    }
+	    KeyTrans KeyTrans = new AddPrefixKeyTrans();
+        String xmlStr = "{ \"this is\": \"not xml\"}";
+        Reader reader = new StringReader(xmlStr);
+        JSONObject jsonObject = XML.toJSONObject(reader, KeyTrans);
+        assertTrue("xml string should be empty", jsonObject.isEmpty());
+    }
+    
+    
+   /**********************************************Milestone2 Test*****************************************/
     
     // test if new method one could get the correct result with valid input
 	@Test
@@ -107,7 +267,7 @@ public class XMLTest {
         		            "\"test.xsd\",\"xmlns:xsi\":\"http://www.w3.org/2001/"+
         		            "XMLSchema-instance\"}}";
 		JSONPointer jsonPointer = new JSONPointer("/root/item");
-        compareReaderToJSONObject3(xmlStr, replaceStr, expectedStr, jsonPointer);
+        compareReadertoJSONObject(xmlStr, replaceStr, expectedStr, jsonPointer);
 	}
 	
     /**
@@ -212,6 +372,8 @@ public class XMLTest {
         JSONObject jsonObject = XML.toJSONObject(xmlStr);
         assertTrue("jsonObject should be empty", jsonObject.isEmpty());
     }
+    
+ //*************************************************************************************************//
 
     /**
      * Empty JSONObject from an empty XML string.
@@ -923,11 +1085,19 @@ public class XMLTest {
     }
     
     // a new method to help test milestone2 task2
-    private void compareReaderToJSONObject3(String xmlStr, String replaceStr, String expectedStr, JSONPointer jsonPointer) throws IOException {
+    private void compareReadertoJSONObject(String xmlStr, String replaceStr, String expectedStr, JSONPointer jsonPointer) throws IOException {
         JSONObject expectedJsonObject = new JSONObject(expectedStr);
         JSONObject replaceJsonObject = new JSONObject(replaceStr);
         Reader reader = new StringReader(xmlStr);
         JSONObject jsonObject = XML.toJSONObject(reader, jsonPointer, replaceJsonObject);
+        Util.compareActualVsExpectedJsonObjects(jsonObject,expectedJsonObject);
+    }
+    
+    // a new method to help test milestone3
+    private void compareReadertoJSONObject(String xmlStr, String expectedStr, KeyTrans KeyTrans) {
+        JSONObject expectedJsonObject = new JSONObject(expectedStr);
+        Reader reader = new StringReader(xmlStr);
+        JSONObject jsonObject = XML.toJSONObject(reader, KeyTrans);
         Util.compareActualVsExpectedJsonObjects(jsonObject,expectedJsonObject);
     }
     
