@@ -7,8 +7,11 @@ JSON in Java [package org.json]
 
 # Milestone3
 **[performance implications of doing this inside the library vs. doing it in client code]**
+
 In milestone1, I need to firstly convert the orginal xml file into json and then do the key transformation. On the contrary, within the library, I'm able to do the key transforamtion during parsing. Specifically, I pass the KeyTrans to the accumulate method so that every time the newly parsed content added to the JSONObject, the key transformation would happen at the same time.
+
 **[corresponding 5 unit test cases added: add prefix, reverse the key, etc]**
+
 **[user instruction: the user should firstly implement the KeyTrans interface provided by this library and override the trans method to achieve the implementation the user want]**
 
 
