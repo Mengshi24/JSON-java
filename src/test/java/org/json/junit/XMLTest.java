@@ -251,7 +251,7 @@ public class XMLTest {
     
 	 // test if new method two could get the correct result with valid input
 	@Test
-	public void mileStoneTest2() throws IOException {
+	public void mileStoneTest2() throws IOException {		
 		String xmlStr =             
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
 	            "<addresses xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""+
@@ -260,13 +260,13 @@ public class XMLTest {
 	            "       <ArrayOfNum>1, 2, 3, 4.1, 5.2</ArrayOfNum>\n"+
 	            "   </address>\n"+
 	            "</addresses>";
-        String replaceStr = "{\"ArrayOfNum\":\"1, 2, 3, 4.1, 5.2\"}";
+        String replaceStr = "{\"changed_ArrayOfNum\":\"changed_1, 2, 3, 4.1, 5.2\"}";
         String expectedStr = 
-        		 "{\"addresses\":{\"address\":{\"ArrayOfNum\":\"1, 2, 3, 4.1, 5.2\"\n"+
+        		 "{\"addresses\":{\"address\":{\"changed_ArrayOfNum\":\"changed_1, 2, 3, 4.1, 5.2\"\n"+
         		            "},\"xsi:noNamespaceSchemaLocation\":"+
         		            "\"test.xsd\",\"xmlns:xsi\":\"http://www.w3.org/2001/"+
         		            "XMLSchema-instance\"}}";
-		JSONPointer jsonPointer = new JSONPointer("/root/item");
+		JSONPointer jsonPointer = new JSONPointer("/addresses/address");
         compareReadertoJSONObject(xmlStr, replaceStr, expectedStr, jsonPointer);
 	}
 	

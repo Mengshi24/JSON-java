@@ -1,7 +1,6 @@
 package org.json;
 
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 /*
@@ -82,11 +81,15 @@ public class XML {
     
     
     //*************************Milestone3******************************//
+    public interface KeyTrans {
+    	String trans (String key);
+    }
+    
     public static JSONObject toJSONObject(Reader reader, KeyTrans KeyTrans) throws JSONException {
         return toJSONObject3(reader, XMLParserConfiguration.ORIGINAL, KeyTrans);
     }
     
-    // *****************************Milestone3******************************************//
+    // *****************************Milestone2******************************************//
     // which does, inside the library, the same thing that task 2 of milestone 1 did 
     // in client code, 
     // before writing to disk. (no need to write to disk!!!)
@@ -94,6 +97,7 @@ public class XML {
     // you should be able to do it more efficiently. 
     // Specifically, you shouldn't need to read the entire XML file, 
     // as you can stop parsing it as soon as you find the object in question.
+
     public static JSONObject toJSONObject(Reader reader, JSONPointer path) throws IOException  {
     	BufferedReader bufferReader = new BufferedReader(reader);
 		String line;
@@ -106,9 +110,15 @@ public class XML {
 		JSONObject jsonOutput = new JSONObject();
 		Object subJsonOutput = null;
     	String str2 = null;
+        System.out.println("ready to do");
+
 		try {
-	    	jsonOutput = XML.toJSONObject(xmlContent);
+	    	jsonOutput = XML.toJSONObject(xmlContent, path);
+	        System.out.println("it's return    " + jsonOutput.toString());
+
 	    	subJsonOutput = jsonOutput.query(path);
+	        System.out.println("it's sub return    " + subJsonOutput.toString());
+
 	    	String str = subJsonOutput.toString();
 	    	if(subJsonOutput instanceof JSONObject) {
 	    		JSONObject jsonTemp =  new JSONObject(str);
@@ -127,7 +137,6 @@ public class XML {
 		return new JSONObject(str2);
     }
 
-    // ******************************************************************************************************************//
     // which does, inside the library, the same thing that task 5 of milestone 1 did in 
     // client code, before writing to disk. Are there any possible performance gains from 
     // doing this inside the library? If so, implement them in your version of the library.
@@ -150,7 +159,8 @@ public class XML {
 		JSONObject jsonOutput = new JSONObject();
 		String result = null;
 		try {
-	    	jsonOutput = XML.toJSONObject(xmlContent);
+	    	jsonOutput = XML.toJSONObject(xmlContent, path);
+//	    	jsonOutput = XML.toJSONObject(xmlContent);
 	    	if (jsonOutput.query(pointer) instanceof JSONObject) {
 	    		JSONObject subJsonOutput = (JSONObject) jsonOutput.query(pointer);
 	    		subJsonOutput.put(bottomLevelKey, replacement);
@@ -167,23 +177,13 @@ public class XML {
 	    	System.out.println(e.toString());
 	    }
 		return jsonOutput;  
-    }
-    
-    // which does, inside the library, the kinds of things you did in task 4 of milestone 1, 
-    // but in a much more general manner, for any transformations of keys. 
-    // Specifically, YOURTYPEHERE should be a function (or "functional" in Java) that 
-    // takes as input a String  denoting a key and returns another String that is the 
-    // transformation of the key.
-    public interface KeyTrans {
-    	String trans (String key);
-    }
-
-    
-    
+    }  
     
     // The unit tests that use these two new functions, 
     // both obtaining the correct results and for testing error conditions.
     // can be seen in the XMLTest.
+   
+    //********************************************************************************************//
     
     
     /**
@@ -542,9 +542,6 @@ public class XML {
                                     context.accumulate(tagName, jsonObject.opt(config.getcDataTagName())); // opt. Get an optional value associated with a key.
                                     System.out.println(tagName); //
                                 } else {
-                                	// 在这里check context.queryFrom(JsonpoInter) != null  
-                                	//找到了 就扔出exception
-                                	//然后上面parse3 catch到exception的地方去break
                                     context.accumulate(tagName, jsonObject);
                                     System.out.println(tagName); //
                                 }
@@ -559,7 +556,205 @@ public class XML {
         }
     }
     
-    //
+    // for milestone2
+    private static boolean parse(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, JSONPointer pointer)
+            throws JSONException {
+        char c;
+        int i;
+        JSONObject jsonObject = null;
+        String string;
+        String tagName;
+        Object token;
+        XMLXsiTypeConverter<?> xmlXsiTypeConverter;
+
+        // Test for and skip past these forms:
+        // <!-- ... -->
+        // <! ... >
+        // <![ ... ]]>
+        // <? ... ?>
+        // Report errors for these forms:
+        // <>
+        // <=
+        // <<
+
+        token = x.nextToken();
+
+        // <!
+
+        if (token == BANG) {
+            c = x.next();
+            if (c == '-') {
+                if (x.next() == '-') {
+                    x.skipPast("-->");
+                    return false;
+                }
+                x.back();
+            } else if (c == '[') {
+                token = x.nextToken();
+                if ("CDATA".equals(token)) {
+                    if (x.next() == '[') {
+                        string = x.nextCDATA();
+                        if (string.length() > 0) {
+                            context.accumulate(config.getcDataTagName(), string);  
+                            System.out.println(config.getcDataTagName()); //
+                        }
+                        return false;
+                    }
+                }
+                throw x.syntaxError("Expected 'CDATA['");
+            }
+            i = 1;
+            do {
+                token = x.nextMeta();
+                if (token == null) {
+                    throw x.syntaxError("Missing '>' after '<!'.");
+                } else if (token == LT) {
+                    i += 1;
+                } else if (token == GT) {
+                    i -= 1;
+                }
+            } while (i > 0);
+            return false;
+        } else if (token == QUEST) {
+
+            // <?
+            x.skipPast("?>");
+            return false;
+        } else if (token == SLASH) {
+
+            // Close tag </
+
+            token = x.nextToken();
+            if (name == null) {
+                throw x.syntaxError("Mismatched close tag " + token);
+            }
+            if (!token.equals(name)) {
+                throw x.syntaxError("Mismatched " + name + " and " + token);
+            }
+            if (x.nextToken() != GT) {
+                throw x.syntaxError("Misshaped close tag");
+            }
+            return true;
+
+        } else if (token instanceof Character) {
+            throw x.syntaxError("Misshaped tag");
+
+            // Open tag <
+
+        } else {
+            tagName = (String) token;
+            token = null;
+            jsonObject = new JSONObject();
+            boolean nilAttributeFound = false;
+            xmlXsiTypeConverter = null;
+            for (;;) {
+                if (token == null) {
+                    token = x.nextToken();
+                }
+                // attribute = value
+                if (token instanceof String) {
+                    string = (String) token;
+                    token = x.nextToken();
+                    if (token == EQ) {
+                        token = x.nextToken();
+                        if (!(token instanceof String)) {
+                            throw x.syntaxError("Missing value");
+                        }
+
+                        if (config.isConvertNilAttributeToNull()
+                                && NULL_ATTR.equals(string)
+                                && Boolean.parseBoolean((String) token)) {
+                            nilAttributeFound = true;
+                        } else if(config.getXsiTypeMap() != null && !config.getXsiTypeMap().isEmpty()
+                                && TYPE_ATTR.equals(string)) {
+                            xmlXsiTypeConverter = config.getXsiTypeMap().get(token);
+                        } else if (!nilAttributeFound) {
+                            jsonObject.accumulate(string,
+                                    config.isKeepStrings()
+                                            ? ((String) token)
+                                            : stringToValue((String) token));
+                            System.out.println(string); //
+                        }
+                        token = null;
+                    } else {
+                        jsonObject.accumulate(string, "");
+                        System.out.println(string); //
+                    }
+
+
+                } else if (token == SLASH) {
+                    // Empty tag <.../>
+                    if (x.nextToken() != GT) {
+                        throw x.syntaxError("Misshaped tag");
+                    }
+                    if (nilAttributeFound) {
+                        context.accumulate(tagName, JSONObject.NULL);
+                        System.out.println(tagName); //
+                    } else if (jsonObject.length() > 0) {
+                        context.accumulate(tagName, jsonObject);
+                        System.out.println(tagName); //
+                    } else {
+                        context.accumulate(tagName, "");
+                        System.out.println(tagName); //
+                    }
+                    return false;
+
+                } else if (token == GT) {
+                    // Content, between <...> and </...>
+                    for (;;) {
+                        token = x.nextContent();
+                        if (token == null) {
+                            if (tagName != null) {
+                                throw x.syntaxError("Unclosed tag " + tagName);
+                            }
+                            return false;
+                        } else if (token instanceof String) {
+                            string = (String) token;
+                            if (string.length() > 0) {
+                                if(xmlXsiTypeConverter != null) {
+                                    jsonObject.accumulate(config.getcDataTagName(),
+                                            stringToValue(string, xmlXsiTypeConverter));
+                                    System.out.println(config.getcDataTagName()); //
+                                } else {
+                                    jsonObject.accumulate(config.getcDataTagName(),
+                                            config.isKeepStrings() ? string : stringToValue(string));
+                                    System.out.println(config.getcDataTagName()); //
+                                }
+                            }
+
+                        } else if (token == LT) {
+                            // Nested element
+                            if (parse(x, jsonObject, tagName, config)) {
+                                if (jsonObject.length() == 0) {
+                                    context.accumulate(tagName, "");
+                                    System.out.println(tagName); //
+                                } else if (jsonObject.length() == 1
+                                        && jsonObject.opt(config.getcDataTagName()) != null) {
+                                    context.accumulate(tagName, jsonObject.opt(config.getcDataTagName())); // opt. Get an optional value associated with a key.
+                                    System.out.println(tagName); //
+                                } else {
+                                    context.accumulate(tagName, jsonObject);
+                                    System.out.println("before return break  " + context.toString());
+                                    if (!(context.optQuery(pointer) == null)) {
+                                    	// we get to the target position, can stop parsing the rest content.
+                                    	return true;
+                                    }
+                                    System.out.println(tagName); //
+                                }
+                                return false;
+                            }
+                        }
+                    }
+                } else {
+                    throw x.syntaxError("Misshaped tag");
+                }
+            }
+        }
+    }
+    
+    
+    
+    // for milestone3
     private static int count = 0;
     
     private static boolean parse3(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, KeyTrans KeyTrans)
@@ -750,9 +945,6 @@ public class XML {
                                     System.out.println(tagName);//
                                     System.out.println(count++);//
                                 } else {
-                                	// s在这里check context.queryFrom(JsonpoInter) != null  
-                                	//s找到了 就扔出exception
-                                	//s然后上面parse3 catch到exception的地方去break
                                     context.accumulate3(tagName, jsonObject, KeyTrans);
                                     System.out.println(tagName);//
                                     System.out.println(count++);//
@@ -915,6 +1107,13 @@ public class XML {
     public static JSONObject toJSONObject(String string) throws JSONException {
         return toJSONObject(string, XMLParserConfiguration.ORIGINAL);
     }
+    
+    // for milestone2
+    public static JSONObject toJSONObject(String string, JSONPointer path) throws JSONException {
+//        return toJSONObject(string, XMLParserConfiguration.ORIGINAL);
+        return toJSONObject(string, XMLParserConfiguration.ORIGINAL, path);
+    }
+    
 
     /**
      * Convert a well-formed (but not necessarily valid) XML into a
@@ -997,8 +1196,22 @@ public class XML {
         }
         return jo;
     }
+    // for milestone2
+    public static JSONObject toJSONObject(Reader reader, XMLParserConfiguration config, JSONPointer path) throws JSONException {
+        JSONObject jo = new JSONObject();
+        XMLTokener x = new XMLTokener(reader);
+        while (x.more()) {
+            x.skipPast("<");
+            if(x.more()) {
+//                parse(x, jo, null, config);
+                parse(x, jo, null, config, path);
+            }
+        }
+        return jo;
+    }
+    
 
-    ////
+    // for milestone3
     public static JSONObject toJSONObject3(Reader reader, XMLParserConfiguration config, KeyTrans KeyTrans) throws JSONException {
         JSONObject jo = new JSONObject();
         XMLTokener x = new XMLTokener(reader);
@@ -1063,6 +1276,12 @@ public class XML {
      */
     public static JSONObject toJSONObject(String string, XMLParserConfiguration config) throws JSONException {
         return toJSONObject(new StringReader(string), config);
+    }
+    
+    // for milestone2
+    public static JSONObject toJSONObject(String string, XMLParserConfiguration config, JSONPointer path) throws JSONException {
+//        return toJSONObject(new StringReader(string), config);
+        return toJSONObject(new StringReader(string), config, path);
     }
 
     /**
