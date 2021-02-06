@@ -502,7 +502,7 @@ public class JSONObject {
     
     
     /////////////////
-    public JSONObject accumulate3(String key, Object value, KeyTrans KeyTrans) throws JSONException {
+    public JSONObject accumulate(String key, Object value, KeyTrans KeyTrans) throws JSONException {
         if (!key.equals("content")) {
         	key = KeyTrans.trans(key);
 

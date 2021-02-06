@@ -86,7 +86,7 @@ public class XML {
     }
     
     public static JSONObject toJSONObject(Reader reader, KeyTrans KeyTrans) throws JSONException {
-        return toJSONObject3(reader, XMLParserConfiguration.ORIGINAL, KeyTrans);
+        return toJSONObject(reader, XMLParserConfiguration.ORIGINAL, KeyTrans);
     }
     
     // *****************************Milestone2******************************************//
@@ -757,7 +757,7 @@ public class XML {
     // for milestone3
     private static int count = 0;
     
-    private static boolean parse3(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, KeyTrans KeyTrans)
+    private static boolean parse(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, KeyTrans KeyTrans)
             throws JSONException {
         char c;
         int i;
@@ -795,7 +795,7 @@ public class XML {
                     if (x.next() == '[') {
                         string = x.nextCDATA();
                         if (string.length() > 0) {
-                            context.accumulate3(config.getcDataTagName(), string, KeyTrans); // 
+                            context.accumulate(config.getcDataTagName(), string, KeyTrans); // 
                             System.out.println("!!");
                             System.out.println(config.getcDataTagName());
                         }
@@ -870,7 +870,7 @@ public class XML {
                                 && TYPE_ATTR.equals(string)) {
                             xmlXsiTypeConverter = config.getXsiTypeMap().get(token);
                         } else if (!nilAttributeFound) {
-                            jsonObject.accumulate3(string,
+                            jsonObject.accumulate(string,
                                     config.isKeepStrings()
                                             ? ((String) token)
                                             : stringToValue((String) token), KeyTrans);
@@ -879,7 +879,7 @@ public class XML {
                         }
                         token = null;
                     } else {
-                        jsonObject.accumulate3(string, "", KeyTrans);
+                        jsonObject.accumulate(string, "", KeyTrans);
                         System.out.println(string);//
                         System.out.println(count++);//
                     }
@@ -891,15 +891,15 @@ public class XML {
                         throw x.syntaxError("Misshaped tag");
                     }
                     if (nilAttributeFound) {
-                        context.accumulate3(tagName, JSONObject.NULL, KeyTrans);
+                        context.accumulate(tagName, JSONObject.NULL, KeyTrans);
                         System.out.println(tagName);//
                         System.out.println(count++);//
                     } else if (jsonObject.length() > 0) {
-                        context.accumulate3(tagName, jsonObject, KeyTrans);
+                        context.accumulate(tagName, jsonObject, KeyTrans);
                         System.out.println(tagName);//
                         System.out.println(count++);//
                     } else {
-                        context.accumulate3(tagName, "", KeyTrans);
+                        context.accumulate(tagName, "", KeyTrans);
                         System.out.println(tagName);//
                         System.out.println(count++);//
                     }
@@ -918,12 +918,12 @@ public class XML {
                             string = (String) token;
                             if (string.length() > 0) {
                                 if(xmlXsiTypeConverter != null) {
-                                    jsonObject.accumulate3(config.getcDataTagName(),
+                                    jsonObject.accumulate(config.getcDataTagName(),
                                             stringToValue(string, xmlXsiTypeConverter), KeyTrans);
                                     System.out.println(config.getcDataTagName());//
                                     System.out.println(count++);//
                                 } else {
-                                    jsonObject.accumulate3(config.getcDataTagName(),
+                                    jsonObject.accumulate(config.getcDataTagName(),
                                             config.isKeepStrings() ? string : stringToValue(string), KeyTrans);
                                     System.out.println(config.getcDataTagName());//
                                     System.out.println(count++);//
@@ -932,20 +932,20 @@ public class XML {
 
                         } else if (token == LT) {
                             // Nested element
-                            if (parse3(x, jsonObject, tagName, config, KeyTrans)) {
+                            if (parse(x, jsonObject, tagName, config, KeyTrans)) {
                                 if (jsonObject.length() == 0) {
                                 	System.out.println(tagName);
-                                    context.accumulate3(tagName, "", KeyTrans);
+                                    context.accumulate(tagName, "", KeyTrans);
                                     System.out.println(tagName);//
                                     System.out.println(count++);//
                                 } else if (jsonObject.length() == 1
                                         && jsonObject.opt(config.getcDataTagName()) != null) {
                                 	System.out.println(tagName);
-                                    context.accumulate3(tagName, jsonObject.opt(config.getcDataTagName()), KeyTrans); // opt. Get an optional value associated with a key.
+                                    context.accumulate(tagName, jsonObject.opt(config.getcDataTagName()), KeyTrans); // opt. Get an optional value associated with a key.
                                     System.out.println(tagName);//
                                     System.out.println(count++);//
                                 } else {
-                                    context.accumulate3(tagName, jsonObject, KeyTrans);
+                                    context.accumulate(tagName, jsonObject, KeyTrans);
                                     System.out.println(tagName);//
                                     System.out.println(count++);//
                                 }
@@ -1212,13 +1212,13 @@ public class XML {
     
 
     // for milestone3
-    public static JSONObject toJSONObject3(Reader reader, XMLParserConfiguration config, KeyTrans KeyTrans) throws JSONException {
+    public static JSONObject toJSONObject(Reader reader, XMLParserConfiguration config, KeyTrans KeyTrans) throws JSONException {
         JSONObject jo = new JSONObject();
         XMLTokener x = new XMLTokener(reader);
         while (x.more()) {
             x.skipPast("<");
             if(x.more()) {
-                parse3(x, jo, null, config, KeyTrans);
+                parse(x, jo, null, config, KeyTrans);
             }
         }
         return jo;
