@@ -5,9 +5,7 @@ JSON in Java [package org.json]
 
 **[Click here if you just want the latest release jar file.](https://repo1.maven.org/maven2/org/json/json/20201115/json-20201115.jar)**
 
-# Milestone3
-**[performance implications of doing this inside the library vs. doing it in client code]**
-
+# Milestone4
 In milestone4, I choose to stream the top level elements only, the concerns behind can be listed as follows:
 Pros:
 1. Works for different types of JSONObjects (nested JSONObject or lower level JSONObject with only one level of tag/value) 
@@ -16,7 +14,7 @@ Cons:
 1. Cannot reach to the inner nodes while iterating through the nodes, which means the capability is limited. It would require the user to do a lot of processing themselves, makes stream less concise. For example, if the user works with a nested XML file about the book list and want to change the title of a certain book, then the user need to firstly get that certain book (sub JSONObject) and then do the operation, which might not be a efficent/appropriate way to do that.
 Rebuttal to the Con: a lot of number of edge cases if we were to give the user the "inner" map back, this method would empowers the user to do it themselves.
 
-**[corresponding 4 unit test cases added]**
+**[6 unit test cases added]**
 1. JSONObject.toStream().forEach(node -> do some transformation);
 2. JSONObject.toStream().map(node -> extract value for certain key given by user0);
 3. JSONObject.toStream().filter(node -> node with certain properties).forEach(node -> do some transformation);
