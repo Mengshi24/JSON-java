@@ -1020,14 +1020,36 @@ public class JSONObject {
 //        }
 //    }
     
-    // 递归遍历所有的叶子节点然后收集成List stream.of
-    // method 1 
-    public Stream<JSONObject> toStream2() throws Exception {
-        return null;
-    }
-    
-    
-    
+  // for test only, wanna recursively traverse the jsonObject
+//	public static void listJson(Object objJson) {
+//		List<Pair<String, Object>> result = new ArrayList<>();
+//		if (objJson instanceof JSONArray) {
+//	        JSONArray jsonArray = (JSONArray) objJson;
+//	        if (jsonArray.length() > 0) {
+//	            for (int i = 0; i < jsonArray.length(); i++) {
+//	                listJson(jsonArray.get(i));
+//	            }
+//	        }
+//	    } else if (objJson instanceof JSONObject) {
+//	        JSONObject jsonObject = (JSONObject) objJson;
+//	        Set<String> keySet = jsonObject.keySet();
+//	        Iterator<String> iterator = keySet.iterator();
+//	        while (iterator.hasNext()) {
+//	            String key = iterator.next();
+//	            Object value = jsonObject.get(key);
+//          	Pair<String, Object> pair = new Pair(key, value);
+//	            if (value instanceof JSONArray) {
+//	                JSONArray innerArr = (JSONArray) value;
+//	                listJson(innerArr);
+//	            } else if (value instanceof JSONObject) {
+//	                listJson(value);
+//	            } else {    
+//	            	result.add(pair);
+//	                System.out.println(key + "-----" + value.toString());
+//	            }
+//	        }
+//	    }
+//	}
 
 
     /**
@@ -2711,36 +2733,5 @@ public class JSONObject {
                 "JSONObject[" + quote(key) + "] is not a " + valueType + " (" + value + ")."
                 , cause);
     }
-    
-//    // for test only
-//	public static void listJson(Object objJson) {
-//		List<Pair<String, Object>> result = new ArrayList<>();
-//		if (objJson instanceof JSONArray) {
-//	        JSONArray jsonArray = (JSONArray) objJson;
-//	        if (jsonArray.length() > 0) {
-//	            for (int i = 0; i < jsonArray.length(); i++) {
-//	                listJson(jsonArray.get(i));
-//	            }
-//	        }
-//	    } else if (objJson instanceof JSONObject) {
-//	        JSONObject jsonObject = (JSONObject) objJson;
-//	        Set<String> keySet = jsonObject.keySet();
-//	        Iterator<String> iterator = keySet.iterator();
-//	        while (iterator.hasNext()) {
-//	            String key = iterator.next();
-//	            Object value = jsonObject.get(key);
-//            	Pair<String, Object> pair = new Pair(key, value);
-//	            if (value instanceof JSONArray) {
-//	                JSONArray innerArr = (JSONArray) value;
-//	                listJson(innerArr);
-//	            } else if (value instanceof JSONObject) {
-//	                listJson(value);
-//	            } else {    
-//	            	result.add(pair);
-//	                System.out.println(key + "-----" + value.toString());
-//	            }
-//	        }
-//	    }
-//	}
     
 }

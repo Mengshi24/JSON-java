@@ -116,7 +116,6 @@ public class XMLTest {
     // some useful case, get all the attributes of a book (but firstly the user should get the subJSONObject)
 	@Test
     public void mileStone4Test4() throws Exception {
-    	// <year>2016</year>
     	JSONObject jsonObject = XML.toJSONObject("<title>The Three-Body Problem</title><author>Cixin Liu</author><tanslator>Ken Liu</tanslator><year>2016</year>");
     	List<Object> listExpected = new ArrayList<>();
     	listExpected.add((Object) 2016);
@@ -126,13 +125,63 @@ public class XMLTest {
 
     	List<Object> listUnderTest = jsonObject.toStream().map(node -> node.getValue()).collect(Collectors.toList());
     	assertEquals(listExpected, listUnderTest);   
-    	assertThat(listUnderTest, CoreMatchers.hasItems((Object) 2016, (Object) "Ken Liu", (Object) "Cixin Liu", (Object) "The Three-Body Problem"));
-
+//    	assertThat(listUnderTest, CoreMatchers.hasItems((Object) 2016, (Object) "Ken Liu", (Object) "Cixin Liu", (Object) "The Three-Body Problem"));
     }
-    
-    
-    
-    
+	
+    // test case for nested JSONObject
+	@Test
+    public void mileStone4Test5() throws Exception {
+    	// <year>2016</year>
+    	JSONObject jsonObject = XML.toJSONObject(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                        "<addresses>\n"+
+                        "   <address>\n"+
+                        "       <name>\n"+
+                        "       	<lastname>Joe</lastname>\n"+
+                        "       </name>\n"+
+                        "   </address>\n"+
+                        "</addresses>");
+    	JSONObject subJsonObject = XML.toJSONObject(
+                "   <address>\n"+
+                "       <name>\n"+
+                "       	<lastname>Joe</lastname>\n"+
+                "       </name>\n"+
+                "   </address>");
+    	
+    	List<Object> listExpected = new ArrayList<>();
+    	listExpected.add((Object) subJsonObject);
+    	List<Object> listUnderTest = jsonObject.toStream().filter(node -> node.getKey().equals("addresses")).map(node -> node.getValue()).collect(Collectors.toList());
+    	assertEquals(listExpected.toString(), listUnderTest.toString()); 
+    }
+	
+    // test case for nested JSONObject with complicated tagName
+	@Test
+    public void mileStone4Test6() throws Exception {
+    	// <year>2016</year>
+    	JSONObject jsonObject = XML.toJSONObject(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                        "<addresses id ='9450'>\n"+
+                        "   <address>\n"+
+                        "       <name>\n"+
+                        "       	<lastname>Joe</lastname>\n"+
+                        "       </name>\n"+
+                        "   </address>\n"+
+                        "</addresses>");
+    	JSONObject subJsonObject = XML.toJSONObject(
+                "   <address>\n"+
+                "       <name>\n"+
+                "       	<lastname>Joe</lastname>\n"+
+                "       </name>\n"+
+                "   </address>\n"+
+                "	<id>9450</id>");
+    	
+    	List<Object> listExpected = new ArrayList<>();
+    	listExpected.add((Object) subJsonObject);
+    	List<Object> listUnderTest = jsonObject.toStream().filter(node -> node.getKey().equals("addresses")).map(node -> node.getValue()).collect(Collectors.toList());
+    	assertEquals(listExpected.toString(), listUnderTest.toString()); 
+    }
+	
+	
     
     /**********************************************Milestone3 Test*****************************************/
     // test if new method could get the correct result with valid input, add prefix

@@ -78,18 +78,7 @@ public class XML {
     public static final String NULL_ATTR = "xsi:nil";
 
     public static final String TYPE_ATTR = "xsi:type";
-    
-    //*************************Milestone4******************************//
-    // Add streaming methods to the library that allow the client code to chain 
-    //     operations without having to load the entire file in memory. 
-    public static JSONObject toJSONObjectStream(Reader reader) {
-//		JSONObject results = JsonUtil.getJsonObject(object, "results");
-		return null;
-    	
-    }
-    
-    
-    
+
     //*************************Milestone3******************************//
     public interface KeyTrans {
     	String trans (String key);
