@@ -27,6 +27,7 @@ SOFTWARE.
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -38,9 +39,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.hamcrest.CoreMatchers;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,6 +58,8 @@ import org.json.XMLXsiTypeConverter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import junit.framework.Assert;
 
 
 /**
@@ -67,6 +74,66 @@ public class XMLTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
   
+    /**********************Milestone4 Test*************************
+     * @throws Exception *****************************************/
+    
+    // for each node -> do some transformation
+    @Test
+    public void mileStone4Test1() throws Exception {
+    	String x = "{\"count\":25,\"rows\":[{\"id\":10,\"name\":\"xxx\"},{\"id\":11,\"name\":\"xyx\"}]}";
+    	JSONObject jsonObject = new JSONObject(x);
+    	
+    	String x2 = "{\"count\":\"transformation here\",\"rows\":\"transformation here\"}";
+    	JSONObject expectedJsonObject = new JSONObject(x2);
+    	jsonObject.toStream().forEach(node -> node.setValue("transformation here"));
+    	Util.compareActualVsExpectedJsonObjects(jsonObject,expectedJsonObject);    	
+    }
+    
+    // node -> extract value for certain key
+	@Test
+    public void mileStone4Test2() throws Exception {
+    	String x = "{\"count\":25, \"rows\":[{\"id\":10,\"name\":\"xxx\"},{\"id\":11,\"name\":\"xyx\"}]}";
+    	JSONObject jsonObject = new JSONObject(x);
+    	List<Object> listExpected = new ArrayList<>();
+    	listExpected.add((Object) 25);
+    	List<Object> listUnderTest = jsonObject.toStream().filter(node -> node.getKey().equals("count")).map(node -> node.getValue()).collect(Collectors.toList());
+    	assertEquals(listExpected, listUnderTest);
+    }
+    
+	// node -> node with certain properties
+    @Test
+    public void mileStone4Test3() throws Exception {
+    	String x = "{\"count\":25, \"rows\":[{\"id\":10,\"name\":\"xxx\"},{\"id\":11,\"name\":\"xyx\"}]}";
+    	JSONObject jsonObject = new JSONObject(x);
+    	
+    	String x2 = "{\"count\":\"transformation here\",\"rows\":[{\"id\":10,\"name\":\"xxx\"},{\"id\":11,\"name\":\"xyx\"}]}";
+    	JSONObject expectedJsonObject = new JSONObject(x2);
+    	
+    	jsonObject.toStream().filter(node -> node.getKey().equals("count")).forEach(node -> node.setValue("transformation here"));
+    	Util.compareActualVsExpectedJsonObjects(jsonObject,expectedJsonObject);    	
+    }
+    
+    // some useful case, get all the attributes of a book (but firstly the user should get the subJSONObject)
+	@Test
+    public void mileStone4Test4() throws Exception {
+    	// <year>2016</year>
+    	JSONObject jsonObject = XML.toJSONObject("<title>The Three-Body Problem</title><author>Cixin Liu</author><tanslator>Ken Liu</tanslator><year>2016</year>");
+    	List<Object> listExpected = new ArrayList<>();
+    	listExpected.add((Object) 2016);
+    	listExpected.add((Object) "Cixin Liu");
+    	listExpected.add((Object) "The Three-Body Problem");
+    	listExpected.add((Object) "Ken Liu");
+
+    	List<Object> listUnderTest = jsonObject.toStream().map(node -> node.getValue()).collect(Collectors.toList());
+    	assertEquals(listExpected, listUnderTest);   
+    	assertThat(listUnderTest, CoreMatchers.hasItems((Object) 2016, (Object) "Ken Liu", (Object) "Cixin Liu", (Object) "The Three-Body Problem"));
+
+    }
+    
+    
+    
+    
+    
     /**********************************************Milestone3 Test*****************************************/
     // test if new method could get the correct result with valid input, add prefix
     @Test

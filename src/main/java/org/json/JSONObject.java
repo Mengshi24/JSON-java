@@ -36,16 +36,20 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.json.XML.KeyTrans;
 
@@ -992,6 +996,39 @@ public class JSONObject {
     protected Set<Entry<String, Object>> entrySet() {
         return this.map.entrySet();
     }
+    
+    // method 1 
+    public Stream<Entry<String, Object>> toStream() throws Exception {
+        return this.map.entrySet().stream();
+    }
+    // method2
+//    public Stream<? extends Object> toStream() throws Exception {
+//        Object object = this.map.entrySet().stream().findFirst().get().getValue();
+//        String key = this.map.entrySet().stream().findFirst().get().getKey();
+//
+//               
+//        if (object instanceof String) {
+//        	return this.map.entrySet().stream();
+//        } else if (object instanceof JSONObject) {
+////        	this.map.entrySet().stream().findFirst().get().getValue() = ;
+//        	this.map.put(key, object);
+//            return ((JSONObject) object).map.values().stream();
+//        } else if (object instanceof JSONArray) {
+//        	throw new Exception("Json array");
+//        } else {
+//            throw new Exception("Not JSONArray & JSONObject");
+//        }
+//    }
+    
+    // 递归遍历所有的叶子节点然后收集成List stream.of
+    // method 1 
+    public Stream<JSONObject> toStream2() throws Exception {
+        return null;
+    }
+    
+    
+    
+
 
     /**
      * Get the number of keys stored in the JSONObject.
@@ -2674,4 +2711,36 @@ public class JSONObject {
                 "JSONObject[" + quote(key) + "] is not a " + valueType + " (" + value + ")."
                 , cause);
     }
+    
+//    // for test only
+//	public static void listJson(Object objJson) {
+//		List<Pair<String, Object>> result = new ArrayList<>();
+//		if (objJson instanceof JSONArray) {
+//	        JSONArray jsonArray = (JSONArray) objJson;
+//	        if (jsonArray.length() > 0) {
+//	            for (int i = 0; i < jsonArray.length(); i++) {
+//	                listJson(jsonArray.get(i));
+//	            }
+//	        }
+//	    } else if (objJson instanceof JSONObject) {
+//	        JSONObject jsonObject = (JSONObject) objJson;
+//	        Set<String> keySet = jsonObject.keySet();
+//	        Iterator<String> iterator = keySet.iterator();
+//	        while (iterator.hasNext()) {
+//	            String key = iterator.next();
+//	            Object value = jsonObject.get(key);
+//            	Pair<String, Object> pair = new Pair(key, value);
+//	            if (value instanceof JSONArray) {
+//	                JSONArray innerArr = (JSONArray) value;
+//	                listJson(innerArr);
+//	            } else if (value instanceof JSONObject) {
+//	                listJson(value);
+//	            } else {    
+//	            	result.add(pair);
+//	                System.out.println(key + "-----" + value.toString());
+//	            }
+//	        }
+//	    }
+//	}
+    
 }

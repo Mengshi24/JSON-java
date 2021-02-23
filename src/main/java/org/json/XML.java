@@ -79,6 +79,16 @@ public class XML {
 
     public static final String TYPE_ATTR = "xsi:type";
     
+    //*************************Milestone4******************************//
+    // Add streaming methods to the library that allow the client code to chain 
+    //     operations without having to load the entire file in memory. 
+    public static JSONObject toJSONObjectStream(Reader reader) {
+//		JSONObject results = JsonUtil.getJsonObject(object, "results");
+		return null;
+    	
+    }
+    
+    
     
     //*************************Milestone3******************************//
     public interface KeyTrans {
@@ -1186,7 +1196,7 @@ public class XML {
      * @throws JSONException Thrown if there is an errors while parsing the string
      */
     public static JSONObject toJSONObject(Reader reader, XMLParserConfiguration config) throws JSONException {
-        JSONObject jo = new JSONObject();
+        JSONObject jo = new JSONObject(); 
         XMLTokener x = new XMLTokener(reader);
         while (x.more()) {
             x.skipPast("<");
