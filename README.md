@@ -12,7 +12,7 @@ In milestone4, I add a toStream method in JSONObject class and choose to stream 
 Pros:
 
 1. Works for different types of JSONObjects (nested JSONObject or lower level JSONObject with only one level of tag/value) 
-2. Simple use, path is not required, and the result is also clear and easy to understand.
+2. Simple to use, path is not required, and the result is also clear and easy to understand.
 
 Cons:
 
