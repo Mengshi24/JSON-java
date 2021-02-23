@@ -114,6 +114,7 @@ public class XMLTest {
     }
     
     // some useful case, get all the attributes of a book (but firstly the user should get the subJSONObject)
+	@SuppressWarnings("deprecation")
 	@Test
     public void mileStone4Test4() throws Exception {
     	JSONObject jsonObject = XML.toJSONObject("<title>The Three-Body Problem</title><author>Cixin Liu</author><tanslator>Ken Liu</tanslator><year>2016</year>");
@@ -125,7 +126,8 @@ public class XMLTest {
 
     	List<Object> listUnderTest = jsonObject.toStream().map(node -> node.getValue()).collect(Collectors.toList());
     	assertEquals(listExpected, listUnderTest);   
-//    	assertThat(listUnderTest, CoreMatchers.hasItems((Object) 2016, (Object) "Ken Liu", (Object) "Cixin Liu", (Object) "The Three-Body Problem"));
+    	assertThat(listUnderTest, CoreMatchers.hasItems((Object) 2016, (Object) "Ken Liu", (Object) "Cixin Liu", (Object) "The Three-Body Problem"));
+    	// assertThat(listUnderTest, CoreMatchers.hasItems((Object) 2016, (Object) "Ken Liu", (Object) "Cixin Liu", (Object) "The Three-Body Problem"));
     }
 	
     // test case for nested JSONObject
