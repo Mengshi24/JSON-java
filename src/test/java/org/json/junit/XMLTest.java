@@ -126,8 +126,7 @@ public class XMLTest {
 
     	List<Object> listUnderTest = jsonObject.toStream().map(node -> node.getValue()).collect(Collectors.toList());
     	assertEquals(listExpected, listUnderTest);   
-    	assertThat(listUnderTest, CoreMatchers.hasItems((Object) 2016, (Object) "Ken Liu", (Object) "Cixin Liu", (Object) "The Three-Body Problem"));
-
+    	// assertThat(listUnderTest, CoreMatchers.hasItems((Object) 2016, (Object) "Ken Liu", (Object) "Cixin Liu", (Object) "The Three-Body Problem"));
     }
     
     
