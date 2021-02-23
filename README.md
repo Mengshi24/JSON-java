@@ -8,6 +8,27 @@ JSON in Java [package org.json]
 # Milestone3
 **[performance implications of doing this inside the library vs. doing it in client code]**
 
+In milestone4, I choose to stream the top level elements only, the concerns behind can be listed as follows:
+Pros:
+1. Works for different types of JSONObjects (nested JSONObject or lower level JSONObject with only one level of tag/value) 
+2. Simple use, path is not required, and the result is also clear and easy to understand.
+Cons:
+1. Cannot reach to the inner nodes while iterating through the nodes, which means the capability is limited. It would require the user to do a lot of processing themselves, makes stream less concise. For example, if the user works with a nested XML file about the book list and want to change the title of a certain book, then the user need to firstly get that certain book (sub JSONObject) and then do the operation, which might not be a efficent/appropriate way to do that.
+Rebuttal to the Con: a lot of number of edge cases if we were to give the user the "inner" map back, this method would empowers the user to do it themselves.
+
+**[corresponding 4 unit test cases added]**
+1. JSONObject.toStream().forEach(node -> do some transformation);
+2. JSONObject.toStream().map(node -> extract value for certain key given by user0);
+3. JSONObject.toStream().filter(node -> node with certain properties).forEach(node -> do some transformation);
+4. a example of typlical use case.
+5. a example of working with nested JSONObject.
+6. another example of working with nested JSONObject.
+
+**[user instruction: Since the toStream() method stream the top level elements only, if the user work with a nested XML file, then usually the user need to get the sub JSONObject firstly and then do the operations related to stream]**
+
+# Milestone3
+**[performance implications of doing this inside the library vs. doing it in client code]**
+
 In milestone1, I need to firstly convert the orginal xml file into json and then do the key transformation, which means the content was scanned twice. On the contrary, within the library, I'm able to do the key transforamtion during parsing. Specifically, I pass the KeyTrans to the accumulate method so that every time the newly parsed content added to the JSONObject, the key transformation would happen at the same time, which gains the better performance.
 
 **[corresponding 5 unit test cases added: add prefix, reverse the key, etc]**
