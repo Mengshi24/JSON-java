@@ -17,6 +17,7 @@ Pros:
 Cons:
 
 1. Cannot reach to the inner nodes while iterating through the nodes, which means the capability is limited. It would require the user to do a lot of processing themselves, makes stream less concise. For example, if the user works with a nested XML file about the book list and want to change the title of a certain book, then the user need to firstly get that certain book (sub JSONObject) and then do the operation, which might not be a efficent/appropriate way to do that.
+
 Rebuttal to the Con: a lot of number of edge cases if we were to give the user the "inner" map back, this method would empowers the user to do it themselves.
 
 **[6 unit test cases added in the XMLTest.class]**
