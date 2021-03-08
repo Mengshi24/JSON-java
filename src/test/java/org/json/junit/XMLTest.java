@@ -31,18 +31,22 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.hamcrest.CoreMatchers;
@@ -55,6 +59,8 @@ import org.json.XML;
 import org.json.XML.KeyTrans;
 import org.json.XMLParserConfiguration;
 import org.json.XMLXsiTypeConverter;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -73,6 +79,61 @@ public class XMLTest {
      */
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+    
+    /***************************************Milestone5*****************************************************/
+    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+    private final PrintStream originalErr = System.err;
+
+    @Before
+    public void setUpStreams() {
+        System.setOut(new PrintStream(outContent));
+        System.setErr(new PrintStream(errContent));
+    }
+
+    @After
+    public void restoreStreams() {
+        System.setOut(originalOut);
+        System.setErr(originalErr);
+    }
+
+    @Test
+    public void mileStone5Test1() throws Exception {
+	    String xmlStr =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                        "<addresses>\n"+
+                        "   <address>\n"+
+                        "       <name>Joe Tester</name>\n"+
+                        "   </address>\n"+
+                        "</addresses>";    
+	    Reader reader = new StringReader(xmlStr);
+		StringWriter stringWriter = new StringWriter();
+		XML.toJSONObject(reader, (JSONObject jo) -> {String actualStr = jo.write(stringWriter).toString(); System.out.println(actualStr);}, (Exception e) -> {System.out.println("Exception received: " + e);});
+		String expectedStr = "{\"addresses\":{\"address\":{\"name\":\"Joe Tester\"}}}";
+        assertEquals(expectedStr, outContent.toString().trim());
+    }
+    
+    @Test
+    public void mileStone5Test2() throws Exception {
+    	String xmlStr =
+    			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    			        "<addresses xmlns:xsi=\"http://www.w3.org/2020/XMLSchema-instance\"" +
+    			        "   xsi:noNamespaceSchemaLocation='test.xsd'>\n" +
+    			        "   <address\n" +
+    			        "       <name>[CDATA[Joe &amp; T &gt; e &lt; s &quot; t &apos; er]]</name>\n" +
+    			        "       <street>Yale street 1224</street>\n" +
+    			        "       <ArrayOfNum>1.3, 2.4, 3, 4, 5</ArrayOfNum>\n" +
+    			        "   </address>\n" +
+    			        "</addresses>";
+	    Reader reader = new StringReader(xmlStr);
+		StringWriter stringWriter = new StringWriter();
+
+		XML.toJSONObject(reader, (JSONObject jo) -> {String actualStr = jo.write(stringWriter).toString(); System.out.println(actualStr);}, (Exception e) -> {System.out.println("Exception received: " + e);});
+		assertEquals("Exception received: java.util.concurrent.ExecutionException: org.json.JSONException: Misplaced '<' at 168 [character 8 line 4]\r\n" + 
+				"", outContent.toString());
+
+    }
   
     /**********************Milestone4 Test*************************
      * @throws Exception *****************************************/

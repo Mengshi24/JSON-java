@@ -33,6 +33,11 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 /**
@@ -78,7 +83,44 @@ public class XML {
     public static final String NULL_ATTR = "xsi:nil";
 
     public static final String TYPE_ATTR = "xsi:type";
+    
+    //*************************Milestone5******************************//
+    
 
+	public interface Callback1 {  
+	    public void callback1(JSONObject jo);  
+	}
+    
+	public interface Callback3 {  
+	    public void callback3(Exception e);  
+	}
+
+
+    public static void toJSONObject(Reader reader, final Callback1 callback1, final Callback3 callback3) {
+        Callable<JSONObject> c = new Callable<JSONObject>() {  
+            @Override  
+            public JSONObject call()  {  
+            	JSONObject jo = XML.toJSONObject(reader);
+                return jo;  
+            }  
+        };  
+  
+        ExecutorService es = Executors.newFixedThreadPool(2);  
+        Future<JSONObject> fn = es.submit(c);
+        es.shutdown();
+        
+        // wait for the task done
+        while (!fn.isDone()) {  
+            try {   
+                JSONObject result = fn.get(); 
+                callback1.callback1(result);
+            }  catch (Exception e) { 
+            	callback3.callback3(e);
+                e.printStackTrace();  
+            } 
+        } 
+    }
+    
     //*************************Milestone3******************************//
     public interface KeyTrans {
     	String trans (String key);
@@ -404,7 +446,7 @@ public class XML {
                         string = x.nextCDATA();
                         if (string.length() > 0) {
                             context.accumulate(config.getcDataTagName(), string);  
-                            System.out.println(config.getcDataTagName()); //
+//                            System.out.println(config.getcDataTagName()); 
                         }
                         return false;
                     }
@@ -481,12 +523,12 @@ public class XML {
                                     config.isKeepStrings()
                                             ? ((String) token)
                                             : stringToValue((String) token));
-                            System.out.println(string); //
+//                            System.out.println(string); //
                         }
                         token = null;
                     } else {
                         jsonObject.accumulate(string, "");
-                        System.out.println(string); //
+//                        System.out.println(string); //
                     }
 
 
@@ -497,13 +539,13 @@ public class XML {
                     }
                     if (nilAttributeFound) {
                         context.accumulate(tagName, JSONObject.NULL);
-                        System.out.println(tagName); //
+//                        System.out.println(tagName); //
                     } else if (jsonObject.length() > 0) {
                         context.accumulate(tagName, jsonObject);
-                        System.out.println(tagName); //
+//                        System.out.println(tagName); //
                     } else {
                         context.accumulate(tagName, "");
-                        System.out.println(tagName); //
+//                        System.out.println(tagName); //
                     }
                     return false;
 
@@ -521,12 +563,12 @@ public class XML {
                             if (string.length() > 0) {
                                 if(xmlXsiTypeConverter != null) {
                                     jsonObject.accumulate(config.getcDataTagName(),
-                                            stringToValue(string, xmlXsiTypeConverter));
-                                    System.out.println(config.getcDataTagName()); //
+                                    stringToValue(string, xmlXsiTypeConverter));
+//                                    System.out.println(config.getcDataTagName()); //
                                 } else {
                                     jsonObject.accumulate(config.getcDataTagName(),
-                                            config.isKeepStrings() ? string : stringToValue(string));
-                                    System.out.println(config.getcDataTagName()); //
+                                    config.isKeepStrings() ? string : stringToValue(string));
+//                                    System.out.println(config.getcDataTagName()); //
                                 }
                             }
 
@@ -535,14 +577,14 @@ public class XML {
                             if (parse(x, jsonObject, tagName, config)) {
                                 if (jsonObject.length() == 0) {
                                     context.accumulate(tagName, "");
-                                    System.out.println(tagName); //
+//                                    System.out.println(tagName); //
                                 } else if (jsonObject.length() == 1
                                         && jsonObject.opt(config.getcDataTagName()) != null) {
                                     context.accumulate(tagName, jsonObject.opt(config.getcDataTagName())); // opt. Get an optional value associated with a key.
-                                    System.out.println(tagName); //
+//                                    System.out.println(tagName); //
                                 } else {
                                     context.accumulate(tagName, jsonObject);
-                                    System.out.println(tagName); //
+//                                    System.out.println(tagName); //
                                 }
                                 return false;
                             }
