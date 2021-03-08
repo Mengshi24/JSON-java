@@ -5,6 +5,20 @@ JSON in Java [package org.json]
 
 **[Click here if you just want the latest release jar file.](https://repo1.maven.org/maven2/org/json/json/20201115/json-20201115.jar)**
 
+# Milestone5
+
+In milestone5，I add an asynchronous method toJSONObject in XML class that allow the client code to proceed, while specifying what to do when the JSONObject becomes available. This is useful for when reading very large files.
+
+**[2 corresponding unit test cases added in the XMLTest.class]**
+
+1. 	mileStone5Test1() To show if the JSONObject can be successfully written. 
+
+2. 	mileStone5Test2() To see if the method can handle the exception correctly as the user expected.
+
+Code coverage analysis was conducted to make sure the tests covered all the code of the new method. 
+
+
+
 # Milestone4
 
 In milestone4, I add a toStream method in JSONObject class and choose to stream the top level elements only, the concerns behind can be listed as follows:
